@@ -10,18 +10,14 @@ movies_ns = Namespace('movies')
 @movies_ns.route('/')
 class MoviesView(Resource):
     def get(self):
-        filters_dict = {
-            "title": request.args.get('title'),
-            "description": request.args.get('description'),
-            "year": request.args.get('year'),
-            "rating": request.args.get('rating'),
-            "genre_id": request.args.get('genre_id'),
-            "director_id": request.args.get('director_id')
-        }
-        movies = movie_service.get_all_movies(filter_dict=filters_dict)
+        req_args = dict(request.args)
+        movies = movie_service.get_all_movies(filters_dict=req_args)
         page = request.args.get('page')
         if page:
-            movies = movie_service.get_all_movies(filter_dict=filters_dict, page=int(page))
+            movies = movie_service.get_all_movies(filters_dict=req_args, page=int(page))
+
+        if len(movies_schema.dump(movies)) == 0:
+            return 'Invalid variables specified', 404
 
         return movies_schema.dump(movies), 200
 

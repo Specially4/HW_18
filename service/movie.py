@@ -5,33 +5,22 @@ class MovieService:
     def __init__(self, dao: MovieDAO):
         self.dao = dao
 
-    def get_all_movies(self, filter_dict: dict = None, page: int = 1, length_list: int = 10):
-        filters_dict = filter_dict
+    def get_all_movies(self, filters_dict: dict = None, page: int = 1, length_list: int = 10):
+        filter_dict = filters_dict
+        if 'genre_id' in filter_dict.keys():
+            filter_dict.update(genre_id=int(filter_dict['genre_id']))
+        if 'director_id' in filter_dict.keys():
+            filter_dict.update(director_id=int(filter_dict['director_id']))
+        if 'rating' in filter_dict.keys():
+            filter_dict.update(rating=float(filter_dict['rating']))
+        if 'year' in filter_dict.keys():
+            filter_dict.update(year=int(filter_dict['year']))
         limit = round(page * length_list)  # can set any length of the movie list
         offset = limit - length_list
         movies = self.dao.get_all_movies(limit=limit, offset=offset)
-        if filters_dict:
-            for key in list(filters_dict.keys()):
-                if filters_dict[key] is None:
-                    del filters_dict[key]
-            if len(filters_dict) == 1:
-                movies = self.dao.get_by_one_filter(k_filter=list(filters_dict.keys()),
-                                                    v_filter=list(filters_dict.values()))
-            elif len(filters_dict) == 2:
-                movies = self.dao.get_by_two_filter(k_filter=list(filters_dict.keys()),
-                                                    v_filter=list(filters_dict.values()))
-            elif len(filters_dict) == 3:
-                movies = self.dao.get_by_three_filter(k_filter=list(filters_dict.keys()),
-                                                      v_filter=list(filters_dict.values()))
-            elif len(filters_dict) == 4:
-                movies = self.dao.get_by_four_filter(k_filter=list(filters_dict.keys()),
-                                                     v_filter=list(filters_dict.values()))
-            elif len(filters_dict) == 5:
-                movies = self.dao.get_by_five_filter(k_filter=list(filters_dict.keys()),
-                                                     v_filter=list(filters_dict.values()))
-            elif len(filters_dict) == 6:
-                movies = self.dao.get_by_six_filter(k_filter=list(filters_dict.keys()),
-                                                    v_filter=list(filters_dict.values()))
+
+        if len(filter_dict) > 0:
+            movies = self.dao.get_by_filter(filter_dict)
 
         return movies
 
